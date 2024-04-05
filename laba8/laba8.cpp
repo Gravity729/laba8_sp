@@ -1,4 +1,5 @@
 ﻿#include "tour.h"
+#include <iostream>
 
 int main() {
     system("chcp 1251"); // Установка кодовой страницы консоли
@@ -18,12 +19,15 @@ int main() {
     try {
         cout << "Добавлены туры:" << endl;
         for (int i = 0; i < 3; ++i) {
-            cout << "Тур " << i << ": " << tourList.getTour(i).destination <<
-                ", продолжительность поездки в минутах: " << tourList.getTour(i).duration <<
-                ", цена: " << tourList.getTour(i).price <<
-                ", размер группы: " << tourList.getTour(i).groupSize << endl;
+            Tour* currentTour = tourList.getTour(i);
+            cout << "Тур " << i << ": " << currentTour->destination
+                << ", продолжительность поездки в минутах: " << currentTour->duration
+                << ", цена: " << currentTour->price
+                << ", размер группы: " << currentTour->groupSize << endl;
         }
+
         cout << "-------------------------------------------------" << endl;
+
         cout << "Удаление тура «Париж»: ";
         // Удаление элемента
         try {
@@ -39,14 +43,15 @@ int main() {
         // Вывод оставшихся элементов
         cout << "Оставшиеся туры:" << endl;
         for (int i = 0; i < 2; ++i) {
-            cout << "Тур " << i << ": " << tourList.getTour(i).destination << endl;
+            Tour* currentTour = tourList.getTour(i);
+            cout << "Тур " << i << ": " << currentTour->destination << endl;
         }
 
         cout << "-------------------------------------------------" << endl;
 
         // Поиск тура по направлению
         cout << "Поиск «Париж»:" << endl;
-        vector<int> positions = tourList.findToursByDestination("Париж");
+        list<int> positions = tourList.findToursByDestination("Париж");
         if (positions.empty()) {
             cout << "Тур не найден." << endl;
         }
@@ -77,11 +82,10 @@ int main() {
 
         // Получение туров с ценой не выше заданной
         cout << "Туры стоимостью не более 550,00:" << endl;
-        vector<Tour> cheapTours = tourList.getToursByMaxPrice(550.00);
-        for (const auto& tour : cheapTours) {
-            cout << tour.destination << " - Цена: " << tour.price << endl;
+        list<Tour*> cheapTours = tourList.getToursByMaxPrice(550.00);
+        for (Tour* tour : cheapTours) {
+            cout << tour->destination << " - Цена: " << tour->price << endl;
         }
-
     }
     catch (const out_of_range& e) {
         cerr << "Исключение вне диапазона: " << e.what() << endl;

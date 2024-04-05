@@ -1,69 +1,86 @@
 #ifndef TOUR_H
 #define TOUR_H
-#include <string>
-#include <vector>
+
 #include <iostream>
-#include <stdexcept>
-#include <algorithm>
+#include <list>
+#include <string>
 
 using namespace std;
 
-struct Tour {
+struct Tour {// Структура, описывающая тур
     string destination; // Название направления
     int duration; // Продолжительность поездки в минутах
     double price; // Цена
     int groupSize; // Размер группы
 };
 
-class TourList {
+class TourList {// Класс, представляющий список туров
 private:
-    vector<Tour> tours;
+    list<Tour*> tours;
 
 public:
-    // Добавление элемента в список
-    void addTour(const Tour& newTour) {
-        tours.push_back(newTour);
-        sort(tours.begin(), tours.end(), [](const Tour& a, const Tour& b) {
-            return a.price < b.price;
+    void addTour(const Tour& newTour) {// Метод добавления тура в список
+        Tour* newTourPtr = new Tour(newTour);
+        tours.push_back(newTourPtr);
+        tours.sort([](const Tour* a, const Tour* b) {
+            return a->price < b->price;
             });
     }
 
-    // Удаление элемента по номеру позиции
-    void removeTour(int position) {
+    void removeTour(int position) { // Метод удаления тура из списка по позиции
         if (position < 0 || position >= tours.size()) {
-            throw out_of_range("Position is out of range");
+            throw out_of_range("Позиция вне диапазона");
         }
-        tours.erase(tours.begin() + position);
+
+        auto iter = tours.begin();
+        advance(iter, position);
+
+        delete* iter;
+        tours.erase(iter);
     }
 
-    // Получение значения элемента по номеру позиции
-    Tour getTour(int position) {
+    Tour* getTour(int position) {// Метод получения тура из списка по позиции
         if (position < 0 || position >= tours.size()) {
-            throw out_of_range("Position is out of range");
+            throw out_of_range("Позиция вне диапазона");
         }
-        return tours[position];
+
+        auto iter = tours.begin();
+        advance(iter, position);
+
+        return *iter;
     }
 
-    // Проверка наличия в списке тура с указанным направлением поездки
-    vector<int> findToursByDestination(const string& destination) {
-        vector<int> positions;
-        for (int i = 0; i < tours.size(); ++i) {
-            if (tours[i].destination == destination) {
-                positions.push_back(i);
+    list<int> findToursByDestination(const string& destination) {  // Метод поиска позиций всех туров по названию направления
+        list<int> positions;
+        int index = 0;
+
+        for (Tour* tour : tours) {
+            if (tour->destination == destination) {
+                positions.push_back(index);
             }
+            index++;
         }
         return positions;
     }
 
-    // Получение описаний всех туров, цена которых не превышает указанную
-    vector<Tour> getToursByMaxPrice(double maxPrice) {
-        vector<Tour> result;
-        for (const auto& tour : tours) {
-            if (tour.price <= maxPrice) {
+    list<Tour*> getToursByMaxPrice(double maxPrice) {// Метод получения списка туров, цена которых не превышает заданную
+        list<Tour*> result;
+
+        for (Tour* tour : tours) {
+            if (tour->price <= maxPrice) {
                 result.push_back(tour);
             }
         }
+
         return result;
     }
+
+    // Деструктор для освобождения памяти от туров при удалении объекта
+    ~TourList() {
+        for (Tour* tour : tours) {
+            delete tour;
+        }
+    }
 };
+
 #endif
